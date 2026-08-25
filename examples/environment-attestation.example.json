@@ -1,0 +1,49 @@
+{
+  "schema_version": "assurance-evidence/v2",
+  "repository": "darklordVirtual/Assurance-CI-",
+  "revision": "0123456789abcdef0123456789abcdef01234567",
+  "producer": {
+    "check_name": "external-effect-readback",
+    "workflow_digest": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
+    "runner_identity": "environment-verifier:synthetic-example"
+  },
+  "policy_identity": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+  "validity": {
+    "observed_at": "2026-08-25T18:00:00Z",
+    "not_after": "2026-08-25T18:15:00Z"
+  },
+  "execution": {
+    "started_at": "2026-08-25T17:59:58Z",
+    "finished_at": "2026-08-25T18:00:02Z",
+    "wall_clock_seconds": 4,
+    "compute_minutes": 0.1,
+    "flake_rate": 0.0
+  },
+  "outcome": "PASSED",
+  "claims_evaluated": [
+    {"id": "ACI-CLAIM-004", "scope": "runtime"}
+  ],
+  "artifacts": [],
+  "attestation": {
+    "verification_outcome": "PASSED",
+    "verifier": "sigstore-verify",
+    "bundle_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "subject_identity": "spiffe://example.invalid/assurance-observer"
+  },
+  "environment": {
+    "environment_id": "synthetic-production-example",
+    "runtime_identity": "spiffe://example.invalid/runtime",
+    "observation_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "observed_at": "2026-08-25T18:00:00Z",
+    "not_after": "2026-08-25T18:15:00Z",
+    "external_readback": true,
+    "key_custody_attested": true
+  },
+  "oracle": {
+    "source": "external-specification",
+    "independence_reviewed": true,
+    "reviewer": "synthetic-example"
+  },
+  "limitations": ["Synthetic structure only; no real environment, signature or effect is represented."],
+  "synthetic": true
+}

@@ -42,3 +42,11 @@ sha256sum --check checksums/SHA256SUMS
 ```
 
 Keep the validator dependency-free. New external actions or build dependencies must be justified and pinned immutably where supported.
+
+## AI-assisted oracle rule
+
+Declare whether a test oracle is human-authored, AI-assisted, generated or grounded in an external specification. Critical oracles generated from the implementation under test require independent review or a separately derived counterexample. Agreement with the generating agent is not independent evidence.
+
+## Digest-bound policy changes
+
+Changes to `assurance_ci/aggregate.py` or `policy/invariants.yaml` require corresponding digest updates in `policy/research-release-v2.json`. The repository validator fails closed when these bindings drift.

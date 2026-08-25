@@ -1,0 +1,72 @@
+{
+  "schema_version": "assurance-claims/v2",
+  "claims": [
+    {
+      "id": "ACI-CLAIM-001",
+      "title": "Critical evidence fails closed",
+      "statement": "Missing, stale, cancelled, skipped or inconclusive critical evidence cannot authorize merge.",
+      "scope": "repository",
+      "status": "active",
+      "criticality": "critical",
+      "owner": "REMORA Research",
+      "valid_from": "2026-08-25T00:00:00Z",
+      "valid_until": null,
+      "supersedes": [],
+      "evidence_producers": ["repository-integrity", "claim-integrity"],
+      "belief_history": [
+        {"at": "2026-08-25T00:00:00Z", "state": "active", "reason": "Initial formalization."}
+      ]
+    },
+    {
+      "id": "ACI-CLAIM-002",
+      "title": "Stable, digest-bound aggregators own merge semantics",
+      "statement": "Protected branches depend on stable required contexts whose producer set, program identity and invariant bundle are revision-bound.",
+      "scope": "repository",
+      "status": "active",
+      "criticality": "critical",
+      "owner": "REMORA Research",
+      "valid_from": "2026-08-25T00:00:00Z",
+      "valid_until": null,
+      "supersedes": [],
+      "evidence_producers": ["aggregator-contract"],
+      "belief_history": [
+        {"at": "2026-08-25T00:00:00Z", "state": "active", "reason": "Initial formalization."},
+        {"at": "2026-08-25T20:30:00Z", "state": "active", "reason": "Strengthened with program and invariant digest binding."}
+      ]
+    },
+    {
+      "id": "ACI-CLAIM-003",
+      "title": "Evidence is revision- and validity-bound",
+      "statement": "Accepted results identify the exact revision, policy, producer, validity window and artifact digests.",
+      "scope": "release",
+      "status": "active",
+      "criticality": "critical",
+      "owner": "REMORA Research",
+      "valid_from": "2026-08-25T00:00:00Z",
+      "valid_until": null,
+      "supersedes": [],
+      "evidence_producers": ["evidence-envelope-validation"],
+      "belief_history": [
+        {"at": "2026-08-25T00:00:00Z", "state": "active", "reason": "Initial formalization."},
+        {"at": "2026-08-25T20:30:00Z", "state": "active", "reason": "Temporal validity added."}
+      ]
+    },
+    {
+      "id": "ACI-CLAIM-004",
+      "title": "Transport success has no execution authority",
+      "statement": "Exit code zero, HTTP 200 or workflow completion alone does not prove that an intended external effect occurred.",
+      "scope": "runtime",
+      "status": "active",
+      "criticality": "critical",
+      "owner": "REMORA Research",
+      "valid_from": "2026-08-25T00:00:00Z",
+      "valid_until": null,
+      "supersedes": [],
+      "evidence_producers": ["environment-attestation", "external-effect-readback"],
+      "belief_history": [
+        {"at": "2026-08-25T00:00:00Z", "state": "active", "reason": "Initial formalization."},
+        {"at": "2026-08-25T20:30:00Z", "state": "active", "reason": "Environment-bound evidence made explicit."}
+      ]
+    }
+  ]
+}

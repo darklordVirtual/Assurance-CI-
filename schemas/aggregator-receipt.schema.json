@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/darklordVirtual/Assurance-CI-/raw/main/schemas/aggregator-receipt.schema.json",
+  "title": "Assurance Aggregator Receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "repository", "revision", "profile_id", "profile_identity",
+    "aggregator", "expected_producers", "observed_producers", "decision",
+    "reason_codes", "decided_at", "budget_observed", "environment_receipts", "limitations"
+  ],
+  "properties": {
+    "schema_version": {"const": "aggregator-receipt/v1"},
+    "repository": {"type": "string"},
+    "revision": {"type": "string", "pattern": "^[0-9a-f]{40,64}$"},
+    "profile_id": {"type": "string"},
+    "profile_identity": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "aggregator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "program_digest", "invariant_bundle_digest"],
+      "properties": {
+        "name": {"type": "string"},
+        "program_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "invariant_bundle_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+      }
+    },
+    "expected_producers": {"type": "array", "items": {"type": "string"}},
+    "observed_producers": {"type": "array", "items": {"type": "object"}},
+    "decision": {"enum": ["PASSED", "BLOCKED"]},
+    "reason_codes": {"type": "array", "items": {"type": "string"}},
+    "decided_at": {"type": "string", "format": "date-time"},
+    "budget_observed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["compute_minutes", "max_wall_clock_seconds"],
+      "properties": {
+        "compute_minutes": {"type": "number", "minimum": 0},
+        "max_wall_clock_seconds": {"type": "number", "minimum": 0}
+      }
+    },
+    "environment_receipts": {"type": "array", "items": {"type": "object"}},
+    "limitations": {"type": "array", "items": {"type": "string"}}
+  }
+}

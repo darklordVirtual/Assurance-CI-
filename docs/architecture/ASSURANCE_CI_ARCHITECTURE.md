@@ -2,6 +2,8 @@
 
 > Turning safety findings into merge-blocking evidence
 
+> **Repository hardening:** The normative v1.0 architecture is extended by the [v1.1 executable-contract addendum](HARDENING_V1_1.md), which adds digest-bound invariants, a reference aggregator, attestation and environment-evidence boundaries, budgets and seeded known-bad controls.
+
 **Document ID:** REMORA-ACA-001
 
 **Version:** 1.0

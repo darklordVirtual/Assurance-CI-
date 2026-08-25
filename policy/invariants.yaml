@@ -1,0 +1,106 @@
+schema_version: assurance-invariants/v1
+invariants:
+  - id: ACI-INV-001
+    title: Critical evidence fails closed
+    criticality: critical
+    affected_surface: merge-authority
+    threat_scenario: Missing, stale, skipped or inconclusive evidence is normalized into success.
+    preconditions:
+      - A revision-controlled assurance profile selects the required producer set.
+    predicate:
+      language: assurance-expression/v1
+      expression: every(expected_producer, evidence.exists && evidence.revision == head_revision && evidence.outcome == PASSED && evidence.valid_at(decision_time))
+    postconditions:
+      - Merge authority is granted only when every required critical producer passes.
+    required_producers:
+      - repository-integrity
+      - claim-integrity
+    failure_treatment: block
+    owner: REMORA Research
+
+  - id: ACI-INV-002
+    title: Aggregator identity is immutable for the selected profile
+    criticality: critical
+    affected_surface: aggregation-control-plane
+    threat_scenario: Workflow code or a pull request substitutes weaker aggregator logic under the same status name.
+    preconditions:
+      - The profile declares the approved aggregator program digest.
+    predicate:
+      language: assurance-expression/v1
+      expression: runtime.aggregator_program_digest == profile.digest_binding.aggregator_program_digest
+    postconditions:
+      - The aggregation receipt records the evaluated program digest.
+    required_producers:
+      - aggregator-contract
+    failure_treatment: block
+    owner: REMORA Research
+
+  - id: ACI-INV-003
+    title: Human and machine attestations are independently verified
+    criticality: critical
+    affected_surface: evidence-provenance
+    threat_scenario: A workflow self-asserts that a review or signature is valid.
+    preconditions:
+      - Policy identifies accepted attestation verifier producers.
+    predicate:
+      language: assurance-expression/v1
+      expression: every(required_attestation, verification.outcome == PASSED && verification.producer in profile.accepted_verifiers)
+    postconditions:
+      - Unverified or self-verified decisions cannot authorize merge.
+    required_producers:
+      - github-oidc-verify
+      - sigstore-verify
+    failure_treatment: block
+    owner: REMORA Research
+
+  - id: ACI-INV-004
+    title: Runtime claims require environment-bound evidence
+    criticality: critical
+    affected_surface: deployment-and-effect-verification
+    threat_scenario: Repository evidence is presented as proof of live identity, custody or external effect.
+    preconditions:
+      - At least one evaluated claim has runtime scope.
+    predicate:
+      language: assurance-expression/v1
+      expression: runtime_claims.empty || (environment.identity_attested && environment.key_custody_attested && environment.external_readback && environment.valid_at(decision_time))
+    postconditions:
+      - CI green cannot independently activate a runtime claim.
+    required_producers:
+      - environment-attestation
+      - external-effect-readback
+    failure_treatment: block
+    owner: REMORA Research
+
+  - id: ACI-INV-005
+    title: Critical producers stay within assurance budgets
+    criticality: high
+    affected_surface: operational-sustainability
+    threat_scenario: Excessive cost, latency or flakiness creates pressure to bypass required assurance.
+    preconditions:
+      - The profile declares latency, compute and flake budgets.
+    predicate:
+      language: assurance-expression/v1
+      expression: aggregate.compute_minutes <= budget.compute_minutes && aggregate.wall_clock_seconds <= budget.wall_clock_seconds && every(critical_producer, flake_rate <= budget.critical_flake_rate)
+    postconditions:
+      - Budget exhaustion is explicit BLOCKED evidence, never silent omission.
+    required_producers:
+      - assurance-budget
+    failure_treatment: block
+    owner: REMORA Research
+
+  - id: ACI-INV-006
+    title: Seeded known-bad controls remain blocked
+    criticality: critical
+    affected_surface: assurance-control-effectiveness
+    threat_scenario: Workflow or policy drift converts a previously blocked bypass into success.
+    preconditions:
+      - The known-bad registry identifies fixture and expected reason code.
+    predicate:
+      language: assurance-expression/v1
+      expression: every(known_bad_control, replay.decision == expected_decision && expected_reason_code in replay.reason_codes)
+    postconditions:
+      - Control pull requests and seeded revisions continuously test merge authority itself.
+    required_producers:
+      - adversarial-seeded-controls
+    failure_treatment: block
+    owner: REMORA Research

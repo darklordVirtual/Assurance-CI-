@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/darklordVirtual/Assurance-CI-/raw/main/schemas/assurance-profile-v2.schema.json",
+  "title": "Assurance Profile v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "repository", "profile_id", "version", "revision_binding",
+    "failure_posture", "digest_binding", "aggregation_policy", "required_aggregators",
+    "critical_outcomes_allowed", "non_success_outcomes", "attestation_policy", "oracle_policy",
+    "environment_evidence", "assurance_budget", "reproduction", "seeded_controls"
+  ],
+  "properties": {
+    "schema_version": {"const": "assurance-profile/v2"},
+    "repository": {"type": "string"},
+    "profile_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+    "version": {"type": "integer", "minimum": 2},
+    "revision_binding": {"const": "exact_commit"},
+    "failure_posture": {"const": "fail_closed"},
+    "digest_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["aggregator_program_digest", "invariant_bundle_digest"],
+      "properties": {
+        "aggregator_program_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "invariant_bundle_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+      }
+    },
+    "aggregation_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["allow_unexpected_producers"],
+      "properties": {"allow_unexpected_producers": {"const": false}}
+    },
+    "required_aggregators": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "path", "producers"],
+        "properties": {
+          "name": {"type": "string"},
+          "path": {"enum": ["fast-pr", "full-release", "periodic"]},
+          "producers": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}}
+        }
+      }
+    },
+    "critical_outcomes_allowed": {"type": "array", "maxItems": 1, "items": {"const": "PASSED"}},
+    "non_success_outcomes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["FAILED", "BLOCKED", "INCONCLUSIVE", "NOT_APPLICABLE"],
+      "properties": {
+        "FAILED": {"const": "block"},
+        "BLOCKED": {"const": "block"},
+        "INCONCLUSIVE": {"const": "block"},
+        "NOT_APPLICABLE": {"const": "require_signed_applicability_decision"}
+      }
+    },
+    "attestation_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["verification_mode", "accepted_verifier_producers", "required_for", "fail_on_unverified"],
+      "properties": {
+        "verification_mode": {"const": "externally_verified"},
+        "accepted_verifier_producers": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+        "required_for": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+        "fail_on_unverified": {"const": true}
+      }
+    },
+    "oracle_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["accepted_sources", "critical_requires_independence_review", "self_confirmation_is_evidence"],
+      "properties": {
+        "accepted_sources": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"enum": ["human-authored", "ai-assisted", "generated", "external-specification"]}
+        },
+        "critical_requires_independence_review": {"const": true},
+        "self_confirmation_is_evidence": {"const": false}
+      }
+    },
+    "environment_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required_for_claim_scopes", "max_age_seconds", "required_observations"],
+      "properties": {
+        "required_for_claim_scopes": {"type": "array", "contains": {"const": "runtime"}},
+        "max_age_seconds": {"type": "integer", "minimum": 1},
+        "required_observations": {
+          "type": "array",
+          "allOf": [
+            {"contains": {"const": "runtime_identity"}},
+            {"contains": {"const": "key_custody"}},
+            {"contains": {"const": "external_readback"}}
+          ]
+        }
+      }
+    },
+    "assurance_budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_aggregate_wall_clock_seconds", "max_compute_minutes", "critical_producer_max_flake_rate", "on_exhaustion"],
+      "properties": {
+        "max_aggregate_wall_clock_seconds": {"type": "number", "exclusiveMinimum": 0},
+        "max_compute_minutes": {"type": "number", "exclusiveMinimum": 0},
+        "critical_producer_max_flake_rate": {"type": "number", "minimum": 0, "maximum": 1},
+        "on_exhaustion": {"const": "BLOCKED"}
+      }
+    },
+    "reproduction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["command", "clean_room_required", "github_secrets_required", "comparison"],
+      "properties": {
+        "command": {"type": "string", "minLength": 1},
+        "clean_room_required": {"const": true},
+        "github_secrets_required": {"const": false},
+        "comparison": {"const": "bit_for_bit_or_declared_exception"}
+      }
+    },
+    "seeded_controls": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["registry", "minimum_frequency", "failure_treatment"],
+      "properties": {
+        "registry": {"type": "string", "minLength": 1},
+        "minimum_frequency": {"enum": ["daily", "weekly", "monthly"]},
+        "failure_treatment": {"const": "block_release"}
+      }
+    }
+  }
+}
