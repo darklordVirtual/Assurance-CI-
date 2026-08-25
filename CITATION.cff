@@ -5,7 +5,7 @@ type: software
 authors:
   - family-names: Skogbrott
     given-names: Stian
-version: 1.0.0
+version: 1.1.0
 date-released: 2026-08-25
 repository-code: "https://github.com/darklordVirtual/Assurance-CI-"
 url: "https://github.com/darklordVirtual/Assurance-CI-"

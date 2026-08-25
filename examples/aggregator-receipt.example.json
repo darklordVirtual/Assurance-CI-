@@ -1,0 +1,43 @@
+{
+  "aggregator": {
+    "invariant_bundle_digest": "sha256:159bde3f0acc923553503da613f695fe3b4fb0acbde33bebdff4b68438ff3491",
+    "name": "quality-gates-required",
+    "program_digest": "sha256:80350cc8e0b112c824ed6d38a295e34882ab105dacf8b42a309dbf8af99cb088"
+  },
+  "budget_observed": {
+    "compute_minutes": 2.5,
+    "max_wall_clock_seconds": 20.0
+  },
+  "decided_at": "2026-08-25T18:00:30Z",
+  "decision": "PASSED",
+  "environment_receipts": [],
+  "expected_producers": [
+    "repository-integrity",
+    "claim-integrity"
+  ],
+  "limitations": [
+    "The reference aggregator consumes attestation-verifier outcomes; it does not verify signatures itself."
+  ],
+  "observed_producers": [
+    {
+      "attestation_verifier": "github-oidc-verify",
+      "evidence_digest": "sha256:6263e14e3881bbcb1605eaffcb179fe8ddb5ecad51d308deb182adc0be77b15e",
+      "outcome": "PASSED",
+      "producer": "repository-integrity",
+      "revision": "0123456789abcdef0123456789abcdef01234567"
+    },
+    {
+      "attestation_verifier": "github-oidc-verify",
+      "evidence_digest": "sha256:540918715d4163266beb48d52a4d6710e6d21fff3c50e7a88b217f39898eeb41",
+      "outcome": "PASSED",
+      "producer": "claim-integrity",
+      "revision": "0123456789abcdef0123456789abcdef01234567"
+    }
+  ],
+  "profile_id": "research-release-v2",
+  "profile_identity": "sha256:468937680a82eb5fc6c35fbd8461fc21aed2ec4186d5e9d9ef628f9c76939b72",
+  "reason_codes": [],
+  "repository": "darklordVirtual/Assurance-CI-",
+  "revision": "0123456789abcdef0123456789abcdef01234567",
+  "schema_version": "aggregator-receipt/v1"
+}

@@ -25,6 +25,10 @@ Assurance CI separates the ability to produce evidence from the authority to acc
 
 Removing or weakening a critical control requires an ADR containing rationale, affected claims, affected findings, replacement evidence, reviewer identity and effective revision. Silent weakening through renaming, matrix changes or workflow refactoring is prohibited.
 
+Aggregator programs and invariant bundles are protected policy objects. Their digests must match the selected assurance profile. Human exceptions, applicability decisions and critical aggregator receipts require an independent attestation-verifier result; the evaluated workflow may not verify itself.
+
+Claims have explicit scope and temporal validity. A changed belief is superseded with history and rationale, not overwritten. Runtime claims require current environment-bound evidence independently of repository CI.
+
 ## Versioning
 
 Architecture documents, schemas and profiles use semantic versioning where practical. Breaking evidence changes require a new schema identifier and migration note. Versioned releases are immutable; corrections create a new release.

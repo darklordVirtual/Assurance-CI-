@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/darklordVirtual/Assurance-CI-/raw/main/schemas/assurance-evidence-envelope-v2.schema.json",
+  "title": "Assurance Evidence Envelope v2",
+  "description": "Revision-, policy-, attestation- and validity-bound producer evidence.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "repository", "revision", "producer", "policy_identity",
+    "validity", "execution", "outcome", "claims_evaluated", "artifacts",
+    "attestation", "oracle", "limitations"
+  ],
+  "properties": {
+    "schema_version": {"const": "assurance-evidence/v2"},
+    "repository": {"type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"},
+    "revision": {"type": "string", "pattern": "^[0-9a-f]{40,64}$"},
+    "producer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["check_name", "workflow_digest", "runner_identity"],
+      "properties": {
+        "check_name": {"type": "string", "minLength": 1},
+        "workflow_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "runner_identity": {"type": "string", "minLength": 1}
+      }
+    },
+    "policy_identity": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "validity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["observed_at", "not_after"],
+      "properties": {
+        "observed_at": {"type": "string", "format": "date-time"},
+        "not_after": {"type": "string", "format": "date-time"}
+      }
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["started_at", "finished_at", "wall_clock_seconds", "compute_minutes", "flake_rate"],
+      "properties": {
+        "started_at": {"type": "string", "format": "date-time"},
+        "finished_at": {"type": "string", "format": "date-time"},
+        "wall_clock_seconds": {"type": "number", "minimum": 0},
+        "compute_minutes": {"type": "number", "minimum": 0},
+        "flake_rate": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "outcome": {"enum": ["PASSED", "FAILED", "BLOCKED", "INCONCLUSIVE", "NOT_APPLICABLE"]},
+    "claims_evaluated": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "scope"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^ACI-CLAIM-[0-9]{3,}$"},
+          "scope": {"enum": ["repository", "build", "release", "runtime"]}
+        }
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "digest"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+        }
+      }
+    },
+    "attestation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["verification_outcome", "verifier", "bundle_digest", "subject_identity"],
+      "properties": {
+        "verification_outcome": {"enum": ["PASSED", "FAILED", "BLOCKED", "INCONCLUSIVE"]},
+        "verifier": {"type": "string", "minLength": 1},
+        "bundle_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "subject_identity": {"type": "string", "minLength": 1}
+      }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "environment_id", "runtime_identity", "observation_digest", "observed_at",
+        "not_after", "external_readback", "key_custody_attested"
+      ],
+      "properties": {
+        "environment_id": {"type": "string", "minLength": 1},
+        "runtime_identity": {"type": "string", "minLength": 1},
+        "observation_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "observed_at": {"type": "string", "format": "date-time"},
+        "not_after": {"type": "string", "format": "date-time"},
+        "external_readback": {"const": true},
+        "key_custody_attested": {"const": true}
+      }
+    },
+    "oracle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "independence_reviewed"],
+      "properties": {
+        "source": {"enum": ["human-authored", "ai-assisted", "generated", "external-specification"]},
+        "independence_reviewed": {"type": "boolean"},
+        "reviewer": {"type": "string"}
+      }
+    },
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "synthetic": {"type": "boolean", "default": false}
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "claims_evaluated": {
+            "contains": {"type": "object", "properties": {"scope": {"const": "runtime"}}, "required": ["scope"]}
+          }
+        }
+      },
+      "then": {"required": ["environment"]}
+    }
+  ]
+}

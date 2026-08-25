@@ -1,0 +1,92 @@
+{
+  "schema_version": "assurance-profile/v2",
+  "repository": "darklordVirtual/Assurance-CI-",
+  "profile_id": "research-release-v2",
+  "version": 2,
+  "revision_binding": "exact_commit",
+  "failure_posture": "fail_closed",
+  "digest_binding": {
+    "aggregator_program_digest": "sha256:80350cc8e0b112c824ed6d38a295e34882ab105dacf8b42a309dbf8af99cb088",
+    "invariant_bundle_digest": "sha256:159bde3f0acc923553503da613f695fe3b4fb0acbde33bebdff4b68438ff3491"
+  },
+  "aggregation_policy": {
+    "allow_unexpected_producers": false
+  },
+  "required_aggregators": [
+    {
+      "name": "quality-gates-required",
+      "path": "fast-pr",
+      "producers": ["repository-integrity", "claim-integrity"]
+    },
+    {
+      "name": "deterministic-suite-required",
+      "path": "fast-pr",
+      "producers": ["deterministic-suite", "boundary-replay", "concurrency-contracts"]
+    },
+    {
+      "name": "supply-chain-required",
+      "path": "full-release",
+      "producers": ["dependency-audit", "sbom", "vex", "provenance", "artifact-digest-verification"]
+    },
+    {
+      "name": "adversarial-assurance-required",
+      "path": "full-release",
+      "producers": ["authorization-fuzz", "dispatch-property-tests", "aggregator-bypass-replay", "stale-evidence-replay"]
+    },
+    {
+      "name": "environment-assurance-required",
+      "path": "full-release",
+      "producers": ["environment-attestation", "key-custody-attestation", "external-effect-readback"]
+    },
+    {
+      "name": "clean-room-reproduction-required",
+      "path": "full-release",
+      "producers": ["clean-room-reproduction", "manifest-comparison"]
+    },
+    {
+      "name": "known-bad-controls",
+      "path": "periodic",
+      "producers": ["adversarial-seeded-controls"]
+    }
+  ],
+  "critical_outcomes_allowed": ["PASSED"],
+  "non_success_outcomes": {
+    "FAILED": "block",
+    "BLOCKED": "block",
+    "INCONCLUSIVE": "block",
+    "NOT_APPLICABLE": "require_signed_applicability_decision"
+  },
+  "attestation_policy": {
+    "verification_mode": "externally_verified",
+    "accepted_verifier_producers": ["github-oidc-verify", "sigstore-verify"],
+    "required_for": ["aggregator_decision", "human_exception", "applicability_decision"],
+    "fail_on_unverified": true
+  },
+  "oracle_policy": {
+    "accepted_sources": ["human-authored", "ai-assisted", "generated", "external-specification"],
+    "critical_requires_independence_review": true,
+    "self_confirmation_is_evidence": false
+  },
+  "environment_evidence": {
+    "required_for_claim_scopes": ["runtime"],
+    "max_age_seconds": 900,
+    "required_observations": ["runtime_identity", "key_custody", "external_readback"]
+  },
+  "assurance_budget": {
+    "max_aggregate_wall_clock_seconds": 300,
+    "max_compute_minutes": 30,
+    "critical_producer_max_flake_rate": 0.0,
+    "on_exhaustion": "BLOCKED"
+  },
+  "reproduction": {
+    "command": "make validate",
+    "clean_room_required": true,
+    "github_secrets_required": false,
+    "comparison": "bit_for_bit_or_declared_exception"
+  },
+  "seeded_controls": {
+    "registry": "registry/known-bad-revisions.json",
+    "minimum_frequency": "weekly",
+    "failure_treatment": "block_release"
+  }
+}

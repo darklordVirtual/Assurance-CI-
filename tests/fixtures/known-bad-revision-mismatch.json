@@ -1,0 +1,88 @@
+[
+  {
+    "schema_version": "assurance-evidence/v2",
+    "repository": "darklordVirtual/Assurance-CI-",
+    "revision": "ffffffffffffffffffffffffffffffffffffffff",
+    "producer": {
+      "check_name": "repository-integrity",
+      "workflow_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "runner_identity": "github-actions:synthetic-fixture"
+    },
+    "policy_identity": "sha256:468937680a82eb5fc6c35fbd8461fc21aed2ec4186d5e9d9ef628f9c76939b72",
+    "validity": {
+      "observed_at": "2026-08-25T17:59:50Z",
+      "not_after": "2026-08-25T18:10:00Z"
+    },
+    "execution": {
+      "started_at": "2026-08-25T17:59:40Z",
+      "finished_at": "2026-08-25T18:00:00Z",
+      "wall_clock_seconds": 20,
+      "compute_minutes": 1.5,
+      "flake_rate": 0.0
+    },
+    "outcome": "PASSED",
+    "claims_evaluated": [
+      {"id": "ACI-CLAIM-001", "scope": "repository"},
+      {"id": "ACI-CLAIM-003", "scope": "release"}
+    ],
+    "artifacts": [
+      {"path": "checksums/SHA256SUMS", "digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333"}
+    ],
+    "attestation": {
+      "verification_outcome": "PASSED",
+      "verifier": "github-oidc-verify",
+      "bundle_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+      "subject_identity": "repo:darklordVirtual/Assurance-CI-:ref:refs/heads/main"
+    },
+    "oracle": {
+      "source": "human-authored",
+      "independence_reviewed": true,
+      "reviewer": "fixture-reviewer"
+    },
+    "limitations": ["Synthetic passing fixture; not a live attestation."],
+    "synthetic": true
+  },
+  {
+    "schema_version": "assurance-evidence/v2",
+    "repository": "darklordVirtual/Assurance-CI-",
+    "revision": "0123456789abcdef0123456789abcdef01234567",
+    "producer": {
+      "check_name": "claim-integrity",
+      "workflow_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+      "runner_identity": "github-actions:synthetic-fixture"
+    },
+    "policy_identity": "sha256:468937680a82eb5fc6c35fbd8461fc21aed2ec4186d5e9d9ef628f9c76939b72",
+    "validity": {
+      "observed_at": "2026-08-25T17:59:55Z",
+      "not_after": "2026-08-25T18:10:00Z"
+    },
+    "execution": {
+      "started_at": "2026-08-25T17:59:45Z",
+      "finished_at": "2026-08-25T17:59:57Z",
+      "wall_clock_seconds": 12,
+      "compute_minutes": 1.0,
+      "flake_rate": 0.0
+    },
+    "outcome": "PASSED",
+    "claims_evaluated": [
+      {"id": "ACI-CLAIM-001", "scope": "repository"},
+      {"id": "ACI-CLAIM-002", "scope": "repository"}
+    ],
+    "artifacts": [
+      {"path": "registry/claims-v2.json", "digest": "sha256:6666666666666666666666666666666666666666666666666666666666666666"}
+    ],
+    "attestation": {
+      "verification_outcome": "PASSED",
+      "verifier": "github-oidc-verify",
+      "bundle_digest": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+      "subject_identity": "repo:darklordVirtual/Assurance-CI-:ref:refs/heads/main"
+    },
+    "oracle": {
+      "source": "ai-assisted",
+      "independence_reviewed": true,
+      "reviewer": "fixture-reviewer"
+    },
+    "limitations": ["Synthetic passing fixture; not a live attestation."],
+    "synthetic": true
+  }
+]

@@ -26,8 +26,22 @@ jobs:
       - name: Validate architecture contracts
         run: python3 scripts/validate_repository.py
 
+      - name: Exercise fail-closed aggregator controls
+        run: python3 -m unittest discover -s tests -v
+
+      - name: Produce a passing reference receipt
+        run: |
+          python3 -m assurance_ci.aggregate \
+            --profile policy/research-release-v2.json \
+            --evidence-set tests/fixtures/passed-evidence-set.json \
+            --invariants policy/invariants.yaml \
+            --revision 0123456789abcdef0123456789abcdef01234567 \
+            --aggregator quality-gates-required \
+            --decided-at 2026-08-25T18:00:30Z \
+            --out /tmp/aggregator-receipt.json
+
       - name: Verify immutable release artifacts
         run: sha256sum --check checksums/SHA256SUMS
 
       - name: Compile validation code
-        run: python3 -m compileall -q scripts
+        run: python3 -m compileall -q scripts assurance_ci tests

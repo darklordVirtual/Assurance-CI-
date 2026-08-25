@@ -19,17 +19,37 @@ REQUIRED_PATHS = [
     "GOVERNANCE.md",
     "CONTRIBUTING.md",
     "CITATION.cff",
+    "docs/architecture/HARDENING_V1_1.md",
+    "docs/THREAT_MODEL.md",
+    "docs/implementation/ROADMAP.md",
     "docs/architecture/ASSURANCE_CI_ARCHITECTURE.md",
     "docs/adr/0001-assurance-ci-as-a-first-class-subsystem.md",
     "docs/figures/assurance-ci-enforcement-architecture.png",
     "docs/figures/assurance-ratchet.png",
     "docs/releases/Assurance_CI_Architecture_REMORA_v1.0.docx",
     "schemas/assurance-evidence-envelope.schema.json",
+    "schemas/assurance-evidence-envelope-v2.schema.json",
     "schemas/assurance-profile.schema.json",
+    "schemas/assurance-profile-v2.schema.json",
+    "schemas/assurance-invariant.schema.json",
+    "schemas/aggregator-receipt.schema.json",
+    "schemas/claim-registry-v2.schema.json",
     "policy/research-release-v1.yaml",
+    "policy/research-release-v2.json",
+    "policy/invariants.yaml",
     "registry/claims.yaml",
+    "registry/claims-v2.json",
     "registry/findings.yaml",
+    "registry/known-bad-revisions.json",
     "examples/evidence-envelope.example.json",
+    "examples/environment-attestation.example.json",
+    "examples/aggregator-receipt.example.json",
+    "assurance_ci/__init__.py",
+    "assurance_ci/aggregate.py",
+    "tests/test_aggregator.py",
+    "tests/fixtures/passed-evidence-set.json",
+    "tests/fixtures/known-bad-stale-evidence.json",
+    "tests/fixtures/known-bad-revision-mismatch.json",
     "checksums/SHA256SUMS",
 ]
 
@@ -61,10 +81,32 @@ def load_json(relative: str) -> dict:
     return data
 
 
+def load_json_value(relative: str):
+    try:
+        return json.loads((ROOT / relative).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        fail(f"invalid JSON in {relative}: {exc}")
+        return None
+
+
+def canonical_digest(value) -> str:
+    encoded = json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode()
+    return "sha256:" + hashlib.sha256(encoded).hexdigest()
+
+
+def file_digest(relative: str) -> str:
+    return "sha256:" + hashlib.sha256((ROOT / relative).read_bytes()).hexdigest()
+
+
 def validate_json_contracts() -> None:
     for relative in (
         "schemas/assurance-evidence-envelope.schema.json",
+        "schemas/assurance-evidence-envelope-v2.schema.json",
         "schemas/assurance-profile.schema.json",
+        "schemas/assurance-profile-v2.schema.json",
+        "schemas/assurance-invariant.schema.json",
+        "schemas/aggregator-receipt.schema.json",
+        "schemas/claim-registry-v2.schema.json",
     ):
         schema = load_json(relative)
         if schema.get("$schema") != "https://json-schema.org/draft/2020-12/schema":
@@ -93,6 +135,75 @@ def validate_json_contracts() -> None:
         if not isinstance(artifact, dict) or not DIGEST.fullmatch(str(artifact.get("digest", ""))):
             fail("evidence example contains an invalid artifact digest")
 
+    profile = load_json("policy/research-release-v2.json")
+    if profile.get("schema_version") != "assurance-profile/v2":
+        fail("research-release-v2 has an unsupported schema_version")
+    if profile.get("revision_binding") != "exact_commit" or profile.get("failure_posture") != "fail_closed":
+        fail("research-release-v2 must bind exact commits and fail closed")
+    binding = profile.get("digest_binding", {})
+    expected_program = file_digest("assurance_ci/aggregate.py")
+    expected_invariants = file_digest("policy/invariants.yaml")
+    if binding.get("aggregator_program_digest") != expected_program:
+        fail("research-release-v2 aggregator program digest is stale")
+    if binding.get("invariant_bundle_digest") != expected_invariants:
+        fail("research-release-v2 invariant bundle digest is stale")
+
+    profile_identity = canonical_digest(profile)
+    fixture_paths = (
+        "tests/fixtures/passed-evidence-set.json",
+        "tests/fixtures/known-bad-stale-evidence.json",
+        "tests/fixtures/known-bad-revision-mismatch.json",
+    )
+    for relative in fixture_paths:
+        evidence_set = load_json_value(relative)
+        if not isinstance(evidence_set, list) or not evidence_set:
+            fail(f"evidence fixture must be a non-empty array: {relative}")
+            continue
+        for index, item in enumerate(evidence_set):
+            if not isinstance(item, dict) or item.get("schema_version") != "assurance-evidence/v2":
+                fail(f"invalid v2 envelope at {relative}[{index}]")
+                continue
+            if item.get("policy_identity") != profile_identity:
+                fail(f"profile identity mismatch at {relative}[{index}]")
+            if item.get("outcome") not in ALLOWED_OUTCOMES:
+                fail(f"invalid outcome at {relative}[{index}]")
+            attestation = item.get("attestation", {})
+            if not DIGEST.fullmatch(str(attestation.get("bundle_digest", ""))):
+                fail(f"invalid attestation digest at {relative}[{index}]")
+
+    environment_example = load_json("examples/environment-attestation.example.json")
+    if environment_example.get("schema_version") != "assurance-evidence/v2":
+        fail("environment attestation example must use assurance-evidence/v2")
+    if not isinstance(environment_example.get("environment"), dict):
+        fail("environment attestation example is missing environment-bound evidence")
+
+    receipt_example = load_json("examples/aggregator-receipt.example.json")
+    if receipt_example.get("schema_version") != "aggregator-receipt/v1":
+        fail("aggregator receipt example has an unsupported schema_version")
+    if receipt_example.get("decision") != "PASSED" or receipt_example.get("reason_codes") != []:
+        fail("passing aggregator receipt example must be PASSED without reason codes")
+    if receipt_example.get("profile_identity") != profile_identity:
+        fail("aggregator receipt example is not bound to research-release-v2")
+
+    claims = load_json("registry/claims-v2.json")
+    claim_items = claims.get("claims", [])
+    claim_ids = [item.get("id") for item in claim_items if isinstance(item, dict)]
+    if len(claim_ids) != len(set(claim_ids)):
+        fail("claim registry v2 contains duplicate claim IDs")
+    for item in claim_items:
+        if not item.get("belief_history"):
+            fail(f"claim has no belief history: {item.get('id')}")
+        if "supersedes" not in item or "valid_until" not in item:
+            fail(f"claim lacks supersession or temporal validity fields: {item.get('id')}")
+
+    controls = load_json("registry/known-bad-revisions.json")
+    for control in controls.get("controls", []):
+        fixture = ROOT / str(control.get("fixture", ""))
+        if not fixture.is_file():
+            fail(f"known-bad control fixture is missing: {control.get('id')}")
+        if control.get("expected_decision") != "BLOCKED":
+            fail(f"known-bad control must expect BLOCKED: {control.get('id')}")
+
 
 def validate_controlled_text() -> None:
     expectations = {
@@ -107,6 +218,14 @@ def validate_controlled_text() -> None:
         "registry/claims.yaml": ["ACI-CLAIM-001", "ACI-CLAIM-002", "ACI-CLAIM-003", "ACI-CLAIM-004"],
         "registry/findings.yaml": ["ACI-FIND-001", "scripts/validate_repository.py"],
         "docs/architecture/ASSURANCE_CI_ARCHITECTURE.md": ["REMORA-ACA-001", "Version:** 1.0"],
+        "policy/invariants.yaml": [
+            "ACI-INV-001", "ACI-INV-002", "ACI-INV-003", "ACI-INV-004", "ACI-INV-005", "ACI-INV-006",
+            "language: assurance-expression/v1", "failure_treatment: block",
+        ],
+        "docs/architecture/HARDENING_V1_1.md": [
+            "Formal invariants", "Cryptographic trust boundary", "environment-bound evidence", "AI-generated oracle policy",
+        ],
+        "docs/THREAT_MODEL.md": ["Deliberate bypass scenarios", "Explicit limitations"],
     }
     for relative, tokens in expectations.items():
         try:
@@ -177,6 +296,15 @@ def validate_checksum_manifest() -> None:
             fail(f"checksum mismatch: {relative}")
 
 
+def validate_no_placeholders() -> None:
+    extensions = {".md", ".json", ".yaml", ".yml", ".py", ".cff"}
+    for path in ROOT.rglob("*"):
+        if path.is_file() and path.suffix in extensions:
+            text = path.read_text(encoding="utf-8")
+            if ("_PLACE" + "HOLDER") in text:
+                fail(f"unresolved placeholder in {path.relative_to(ROOT)}")
+
+
 def main() -> int:
     require_paths()
     validate_json_contracts()
@@ -184,6 +312,7 @@ def main() -> int:
     validate_markdown_links()
     validate_binary_artifacts()
     validate_checksum_manifest()
+    validate_no_placeholders()
 
     if ERRORS:
         print("Assurance repository validation: FAILED")

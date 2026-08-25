@@ -1,0 +1,21 @@
+{
+  "schema_version": "known-bad-controls/v1",
+  "controls": [
+    {
+      "id": "ACI-KNOWN-BAD-001",
+      "title": "Stale evidence reuse",
+      "fixture": "tests/fixtures/known-bad-stale-evidence.json",
+      "expected_decision": "BLOCKED",
+      "expected_reason_code": "stale_or_future_evidence:repository-integrity",
+      "threat_scenario": "A current revision attempts to reuse evidence whose validity window has expired."
+    },
+    {
+      "id": "ACI-KNOWN-BAD-002",
+      "title": "Cross-revision evidence substitution",
+      "fixture": "tests/fixtures/known-bad-revision-mismatch.json",
+      "expected_decision": "BLOCKED",
+      "expected_reason_code": "revision_mismatch:repository-integrity",
+      "threat_scenario": "Evidence from a different revision is presented to the required aggregator."
+    }
+  ]
+}

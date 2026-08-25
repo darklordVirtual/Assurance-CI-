@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/darklordVirtual/Assurance-CI-/raw/main/schemas/claim-registry-v2.schema.json",
+  "title": "Assurance Claim Registry v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "claims"],
+  "properties": {
+    "schema_version": {"const": "assurance-claims/v2"},
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id", "title", "statement", "scope", "status", "criticality", "owner",
+          "valid_from", "valid_until", "supersedes", "evidence_producers", "belief_history"
+        ],
+        "properties": {
+          "id": {"type": "string", "pattern": "^ACI-CLAIM-[0-9]{3,}$"},
+          "title": {"type": "string"},
+          "statement": {"type": "string"},
+          "scope": {"enum": ["repository", "build", "release", "runtime"]},
+          "status": {"enum": ["proposed", "active", "limited", "superseded", "withdrawn"]},
+          "criticality": {"enum": ["critical", "high", "medium", "low"]},
+          "owner": {"type": "string"},
+          "valid_from": {"type": "string", "format": "date-time"},
+          "valid_until": {"type": ["string", "null"], "format": "date-time"},
+          "supersedes": {"type": "array", "items": {"type": "string"}},
+          "evidence_producers": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "belief_history": {"type": "array", "minItems": 1, "items": {"type": "object"}}
+        }
+      }
+    }
+  }
+}

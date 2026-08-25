@@ -2,7 +2,8 @@
 
 [![Assurance CI](https://github.com/darklordVirtual/Assurance-CI-/actions/workflows/assurance-ci.yml/badge.svg)](https://github.com/darklordVirtual/Assurance-CI-/actions/workflows/assurance-ci.yml)
 [![Architecture](https://img.shields.io/badge/architecture-v1.0-267CB9)](docs/architecture/ASSURANCE_CI_ARCHITECTURE.md)
-[![Status](https://img.shields.io/badge/status-research%20proposal-6B778D)](CHANGELOG.md)
+[![Repository contracts](https://img.shields.io/badge/contracts-v1.1-177E63)](docs/architecture/HARDENING_V1_1.md)
+[![Status](https://img.shields.io/badge/status-executable%20research%20proposal-6B778D)](CHANGELOG.md)
 
 Assurance CI is a repository-level enforcement architecture for turning safety findings into permanent, revision-bound merge conditions.
 
@@ -38,13 +39,21 @@ This repository formalizes those contracts and provides machine-checkable starte
 ## Canonical artifacts
 
 - [Architecture specification](docs/architecture/ASSURANCE_CI_ARCHITECTURE.md)
+- [v1.1 hardening addendum](docs/architecture/HARDENING_V1_1.md)
+- [Threat model](docs/THREAT_MODEL.md)
 - [Versioned Word release](docs/releases/Assurance_CI_Architecture_REMORA_v1.0.docx)
 - [Architecture decision record](docs/adr/0001-assurance-ci-as-a-first-class-subsystem.md)
 - [Evidence envelope schema](schemas/assurance-evidence-envelope.schema.json)
+- [Evidence envelope v2](schemas/assurance-evidence-envelope-v2.schema.json)
+- [Aggregator receipt schema](schemas/aggregator-receipt.schema.json)
+- [Passing aggregator receipt example](examples/aggregator-receipt.example.json)
 - [Assurance profile schema](schemas/assurance-profile.schema.json)
-- [Research release profile](policy/research-release-v1.yaml)
+- [Research release profile v2](policy/research-release-v2.json)
+- [Formal invariant bundle](policy/invariants.yaml)
 - [Claim registry](registry/claims.yaml)
+- [Temporal claim registry v2](registry/claims-v2.json)
 - [Finding registry](registry/findings.yaml)
+- [Seeded known-bad controls](registry/known-bad-revisions.json)
 
 ## Repository map
 
@@ -58,16 +67,19 @@ This repository formalizes those contracts and provides machine-checkable starte
 │   ├── figures/             Version-controlled diagrams
 │   └── releases/            Immutable document releases
 ├── examples/                Synthetic evidence envelopes
+├── assurance_ci/            Digest-bound reference aggregator
 ├── policy/                  Revision-controlled assurance profiles
 ├── registry/                Claims and findings that drive the ratchet
 ├── schemas/                 Machine-readable contracts
-└── scripts/                 Dependency-free repository validation
+├── scripts/                 Dependency-free repository validation
+└── tests/                   Bypass and seeded known-bad regressions
 ```
 
 ## Validate locally
 
 ```bash
 python3 scripts/validate_repository.py
+python3 -m unittest discover -s tests -v
 sha256sum --check checksums/SHA256SUMS
 ```
 
@@ -82,8 +94,27 @@ The same checks run on pull requests and on `main`. The workflow has read-only r
 | `supply-chain-required` | Dependencies, provenance, SBOM and artifact integrity |
 | `codeql-required` | Static security analysis |
 | `shadow-replay` | Behavioral drift against recorded governed traces |
+| `adversarial-assurance-required` | Fuzzing, property tests and deliberate bypass attempts |
+| `environment-assurance-required` | Runtime identity, custody and external-effect evidence |
+| `clean-room-reproduction-required` | Independent, secret-free release reproduction |
 
 These names are policy interfaces. Individual producer jobs may evolve, but a protected branch should depend on stable aggregators whose semantics cannot silently weaken.
+
+## Executable reference aggregator
+
+The v1.1 reference implementation rejects missing, failed, stale, wrong-revision, unverified and over-budget producer evidence. Its program digest and the invariant-bundle digest are bound into the v2 release profile.
+
+```bash
+python3 -m assurance_ci.aggregate \
+  --profile policy/research-release-v2.json \
+  --evidence-set tests/fixtures/passed-evidence-set.json \
+  --invariants policy/invariants.yaml \
+  --revision 0123456789abcdef0123456789abcdef01234567 \
+  --aggregator quality-gates-required \
+  --decided-at 2026-08-25T18:00:30Z
+```
+
+The aggregator consumes externally verified attestation outcomes; it does not claim to perform cryptographic verification itself.
 
 ## Relationship to REMORA
 
