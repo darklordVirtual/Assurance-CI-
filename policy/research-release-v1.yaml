@@ -1,0 +1,46 @@
+schema_version: assurance-profile/v1
+profile_id: research-release-v1
+version: 1
+revision_binding: exact_commit
+failure_posture: fail_closed
+
+required_aggregators:
+  - name: quality-gates-required
+    producers:
+      - repository-integrity
+      - documentation-fidelity
+      - claim-integrity
+  - name: deterministic-suite-required
+    producers:
+      - deterministic-suite
+      - boundary-replay
+      - concurrency-contracts
+  - name: supply-chain-required
+    producers:
+      - dependency-audit
+      - sbom
+      - provenance
+      - artifact-digest-verification
+  - name: codeql-required
+    producers:
+      - codeql
+  - name: shadow-replay
+    producers:
+      - proposal-decision-replay
+      - lifecycle-replay
+      - effect-expectation-replay
+
+critical_outcomes_allowed:
+  - PASSED
+
+non_success_outcomes:
+  FAILED: block
+  BLOCKED: block
+  INCONCLUSIVE: block
+  NOT_APPLICABLE: require_signed_applicability_decision
+
+evidence_requirements:
+  workflow_digest: true
+  policy_digest: true
+  artifact_digests: true
+  claim_mapping: true

@@ -1,0 +1,28 @@
+{
+  "schema_version": "assurance-evidence/v1",
+  "repository": "darklordVirtual/Assurance-CI-",
+  "revision": "0123456789abcdef0123456789abcdef01234567",
+  "producer": {
+    "check_name": "repository-integrity",
+    "workflow_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "runner_identity": "github-actions:synthetic-example"
+  },
+  "policy_identity": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+  "started_at": "2026-08-25T18:00:00Z",
+  "finished_at": "2026-08-25T18:00:02Z",
+  "outcome": "PASSED",
+  "claims_evaluated": [
+    "ACI-CLAIM-001",
+    "ACI-CLAIM-003"
+  ],
+  "artifacts": [
+    {
+      "path": "checksums/SHA256SUMS",
+      "digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+    }
+  ],
+  "limitations": [
+    "Synthetic example only; it does not represent a real workflow execution or release decision."
+  ],
+  "synthetic": true
+}

@@ -1,0 +1,20 @@
+schema_version: assurance-findings/v1
+findings:
+  - id: ACI-FIND-001
+    title: Architecture contracts were not independently machine-validated
+    status: mitigated
+    severity: medium
+    affected_surface: repository-governance
+    observed_consequence: Documented controls could drift from repository artifacts without a deterministic signal.
+    invariant: Canonical schemas, profiles, registries, figures and release artifacts must pass repository integrity validation on every protected change.
+    regression: scripts/validate_repository.py
+    required_gate: assurance-ci / repository-integrity
+    evidence_claims:
+      - ACI-CLAIM-001
+      - ACI-CLAIM-003
+    history:
+      - date: 2026-08-25
+        state: opened
+      - date: 2026-08-25
+        state: mitigated
+        rationale: Repository validation and immutable release checksums were introduced.

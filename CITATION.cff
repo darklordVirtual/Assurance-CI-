@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this architecture, cite the repository and the versioned specification."
+title: "Assurance CI Architecture"
+type: software
+authors:
+  - family-names: Skogbrott
+    given-names: Stian
+version: 1.0.0
+date-released: 2026-08-25
+repository-code: "https://github.com/darklordVirtual/Assurance-CI-"
+url: "https://github.com/darklordVirtual/Assurance-CI-"
+abstract: "A repository-level enforcement architecture that converts safety findings into revision-bound, merge-blocking evidence."
+keywords:
+  - continuous-integration
+  - assurance
+  - ai-agents
+  - governance
+  - policy-as-code
+  - reproducibility
