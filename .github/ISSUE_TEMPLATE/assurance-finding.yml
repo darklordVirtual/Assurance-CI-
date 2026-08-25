@@ -1,0 +1,49 @@
+name: Assurance finding
+description: Record a bypass, failed invariant, stale claim or evidence-integrity defect.
+title: "[Finding] "
+labels:
+  - assurance-finding
+body:
+  - type: textarea
+    id: surface
+    attributes:
+      label: Affected surface
+      description: Name the boundary, policy, workflow, claim or evidence path.
+    validations:
+      required: true
+  - type: textarea
+    id: invariant
+    attributes:
+      label: Expected invariant
+      description: State the condition that should always hold.
+    validations:
+      required: true
+  - type: textarea
+    id: observation
+    attributes:
+      label: Observed consequence
+      description: Explain what occurred and why it matters.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Do not include credentials, secrets or unsafe operational detail.
+    validations:
+      required: true
+  - type: dropdown
+    id: determinism
+    attributes:
+      label: Reproducibility
+      options:
+        - Deterministic
+        - Intermittent
+        - Not yet classified
+    validations:
+      required: true
+  - type: textarea
+    id: closure
+    attributes:
+      label: Proposed ratchet
+      description: Suggest invariant, regression, required gate, evidence and claim update.

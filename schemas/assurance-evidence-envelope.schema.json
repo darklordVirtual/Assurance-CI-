@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/darklordVirtual/Assurance-CI-/raw/main/schemas/assurance-evidence-envelope.schema.json",
+  "title": "Assurance Evidence Envelope",
+  "description": "A revision-bound result emitted by an Assurance CI evidence producer.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "repository",
+    "revision",
+    "producer",
+    "policy_identity",
+    "started_at",
+    "finished_at",
+    "outcome",
+    "claims_evaluated",
+    "artifacts",
+    "limitations"
+  ],
+  "properties": {
+    "schema_version": {"const": "assurance-evidence/v1"},
+    "repository": {"type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"},
+    "revision": {"type": "string", "pattern": "^[0-9a-f]{40,64}$"},
+    "producer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["check_name", "workflow_digest", "runner_identity"],
+      "properties": {
+        "check_name": {"type": "string", "minLength": 1},
+        "workflow_digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "runner_identity": {"type": "string", "minLength": 1}
+      }
+    },
+    "policy_identity": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "started_at": {"type": "string", "format": "date-time"},
+    "finished_at": {"type": "string", "format": "date-time"},
+    "outcome": {
+      "enum": ["PASSED", "FAILED", "BLOCKED", "INCONCLUSIVE", "NOT_APPLICABLE"]
+    },
+    "claims_evaluated": {
+      "type": "array",
+      "items": {"type": "string", "pattern": "^ACI-CLAIM-[0-9]{3,}$"},
+      "uniqueItems": true
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "digest"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+        }
+      }
+    },
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "synthetic": {"type": "boolean", "default": false}
+  }
+}

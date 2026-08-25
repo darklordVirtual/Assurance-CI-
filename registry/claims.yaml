@@ -1,0 +1,38 @@
+schema_version: assurance-claims/v1
+claims:
+  - id: ACI-CLAIM-001
+    title: Critical evidence fails closed
+    statement: Missing, stale, cancelled, skipped or inconclusive critical evidence cannot authorize merge.
+    status: active
+    criticality: critical
+    owner: REMORA Research
+    evidence_producers:
+      - repository-integrity
+      - claim-integrity
+
+  - id: ACI-CLAIM-002
+    title: Stable aggregators own merge semantics
+    statement: Protected branches depend on stable required contexts that evaluate the complete revision-controlled producer set.
+    status: active
+    criticality: critical
+    owner: REMORA Research
+    evidence_producers:
+      - aggregator-contract
+
+  - id: ACI-CLAIM-003
+    title: Evidence is revision-bound
+    statement: Accepted producer results identify the exact revision, workflow, policy and artifact digests.
+    status: active
+    criticality: critical
+    owner: REMORA Research
+    evidence_producers:
+      - evidence-envelope-validation
+
+  - id: ACI-CLAIM-004
+    title: Transport success has no execution authority
+    statement: Exit code zero, HTTP 200 or workflow completion alone does not prove that an intended external effect occurred.
+    status: active
+    criticality: critical
+    owner: REMORA Research
+    evidence_producers:
+      - effect-verification
